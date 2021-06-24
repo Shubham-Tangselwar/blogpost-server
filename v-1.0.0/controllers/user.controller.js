@@ -129,6 +129,8 @@ class UserCtrl {
     const { email, password } = req.body;
     User.findOne({ email: email }, (err, result) => {
       if (err) {
+        res.status(500).send({ message: "Something Wrong", error: err });
+      } else if (result == null) {
         res.status(404).send({ message: "Invalid Email", error: err });
       } else if (!compare(password, result.password)) {
         res.status(404).send({ message: "Invalid Password", error: err });
