@@ -4,8 +4,9 @@ const { Schema } = mongoose;
 
 const blogSchema = new Schema({
   blogId: { type: Number },
-  title: { type: String, minlength: 5 },
-  content: { type: String, minlength: 5 },
+  title: { type: String, minlength: 5, required: true },
+  shortContent: { type: String, minlength: 5, required: true },
+  content: { type: String, minlength: 5, required: true },
   status: Number,
   createdAt: { type: Date, default: Date.now() },
   updatedAt: { type: Date, default: Date.now() },

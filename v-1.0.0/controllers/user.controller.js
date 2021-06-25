@@ -5,7 +5,8 @@ const { createToken, verifyToken } = require("../helpers/token");
 class UserCtrl {
   static pickUser(user) {
     return _.pick(user, [
-      "name",
+      "first_name",
+      "last_name",
       "_id",
       "mobile",
       "email",
@@ -105,22 +106,41 @@ class UserCtrl {
 
   // getUsers
   static getAllUsers(req, res) {
-    User.find({
-      $or: [{ status: 0 }, { status: 1 }],
-    })
-      .select("name mobile email userId age status role createdAt")
-
-      .exec()
-      .then((result) => {
-        res.status(200).send({ message: "User List", data: result });
+    const token = req.headers.authorization;
+    try {
+      var payload = verifyToken(token);
+    } catch {
+      res.status(401).send({ message: "You need to login", error: null });
+    }
+    if (!payload) {
+      res.status(401).send({ message: "You need to login", error: null });
+    } else {
+      var { id, role } = payload;
+    }
+    if (role == "admin") {
+      User.find({
+        $or: [{ status: 0 }, { status: 1 }],
       })
+        .select(
+          "first_name last_name mobile email userId age status role createdAt"
+        )
 
-      .catch((err) => {
-        console.log(err);
-        res
-          .status(404)
-          .send({ message: "Could not load the users", error: err });
-      });
+        .exec()
+        .then((result) => {
+          res.status(200).send({ message: "User List", data: result });
+        })
+
+        .catch((err) => {
+          console.log(err);
+          res
+            .status(404)
+            .send({ message: "Could not load the users", error: err });
+        });
+    } else {
+      res
+        .status(403)
+        .send({ message: "You Dont have access to this information" });
+    }
   }
   // end of getUsers
 
